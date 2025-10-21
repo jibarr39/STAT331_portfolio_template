@@ -6,11 +6,11 @@ embed-resources: true
 layout: margin-left
 editor: visual
 execute: 
-  eval: false
+  eval: false #code is not being evaluated, dont need to read in packages or data
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an C.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -23,6 +23,10 @@ execute:
 ```{r}
 #| label: wd-1-csv-1
 
+surveys <- read_csv("surveys.csv")
+
+#lab 2 
+
 ```
 
 -   `csv` Example 2
@@ -30,12 +34,18 @@ execute:
 ```{r}
 #| label: wd-1-csv-2
 
+teacher_evals <- read_csv("teacher_evals.csv")
+
+#lab 3
+
 ```
 
 -   `xlsx`
 
 ```{r}
 #| label: wd-1-xlsx
+
+#have not done this yet ;)
 
 ```
 
@@ -46,12 +56,26 @@ execute:
 ```{r}
 #| label: wd-2-ex-1
 
+teacher_evals_clean |>
+  filter(academic_degree %in% c("dr", "prof")) |>
+  group_by(teacher_id, seniority, sex) |>
+  summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
+            .groups = "drop") |>
+  slice_min(avg_response_rate, n = 1) |>
+  bind_rows(teacher_evals_clean |>
+      filter(academic_degree %in% c("dr", "prof")) |>
+      group_by(teacher_id, seniority, sex) |>
+      summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
+                .groups = "drop") |>
+      slice_max(avg_response_rate, n = 1))
 ```
 
 -   Example removing specified columns
 
 ```{r}
 #| label: wd-2-ex-2
+
+#look for the colab
 
 ```
 
