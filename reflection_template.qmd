@@ -68,6 +68,20 @@ teacher_evals_clean |>
       summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
                 .groups = "drop") |>
       slice_max(avg_response_rate, n = 1))
+
+#Growing comment: Selecting columns based on their names doesn't require quotes!
+
+#Got rid of the quotes in the 
+#Lab 3 Question 5
+
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select(course_id, teacher_id, question_no, no_participants, resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
+
+glimpse(teacher_evals_clean)
 ```
 
 -   Example removing specified columns
@@ -75,7 +89,18 @@ teacher_evals_clean |>
 ```{r}
 #| label: wd-2-ex-2
 
-#look for the colab
+#Growing comment: Selecting columns based on their names doesn't require quotes!
+
+#Lab 3 Question 5
+
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select("course_id", "teacher_id", "question_no", "no_participants", "resp_share", "SET_score_avg", "percent_failed_cur", "academic_degree", "seniority", "sex")
+
+glimpse(teacher_evals_clean)
 
 ```
 
@@ -210,6 +235,10 @@ teacher_evals_clean |>
 
 ```{r}
 #| label: wd-6-semi
+
+#suspect list not joining the interview data with suspect but filtering the interview data set 
+
+#semi joins are only looking for matches
 
 ```
 
