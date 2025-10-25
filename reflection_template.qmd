@@ -109,6 +109,22 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-2-ex-3
 
+#okay so in this line of code; I could have tweaked it to use a function selected columns. Within the mutate function I could have 
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select(course_id, teacher_id, question_no, no_participants, resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
+
+#lab 4
+
+childcare_long <- ca_childcare |>
+  pivot_longer(cols = starts_with("mc_"),  
+    names_to = "age_group",
+    names_prefix = "mc_",
+    values_to = "weekly_price")
+
 ```
 
 **WD-3: I can filter rows from a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -118,12 +134,28 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-3-numeric-ex-1
 
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County")) |>
+  mutate(census_region = fct_collapse(county_name,
+    "Superior California" = superior_counties,
+    "North Coast" = north_coast_counties,
+    "San Francisco Bay Area" = san_fran_counties,
+    "Northern San Joaquin Valley" = n_san_joaquin_counties,
+    "Central Coast" = central_coast_counties,
+    "Southern San Joaquin Valley" = s_san_joaquin_counties,
+    "Inland Empire" = inland_counties,
+    "Los Angeles" = la_county,
+    "Orange" = orange_county,
+    "San Diego/Imperial" = san_diego_imperial_counties))
+
 ```
 
 -   Numeric Example 2
 
 ```{r}
 #| label: wd-3-numeric-ex-1
+
+#need to find another example of this
 
 ```
 
@@ -132,6 +164,16 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-3-character
 
+witness1 <- person |>
+  filter(str_detect(address_street_name, regex("Northwestern Dr", ignore_case = TRUE))) |> 
+  filter(address_number == max(address_number))
+
+witness2 <- person |>
+  filter(str_detect(address_street_name, regex("Franklin Ave", ignore_case = TRUE))) |> 
+  filter(str_detect(name, "Annabel"))
+
+witnesses <- bind_rows(witness1, witness2)
+
 ```
 
 -   Character Example 2 (example must use functions from **stringr**)
@@ -139,12 +181,28 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-3-string
 
+get_fit_member_suspects <- get_fit_now_member |>
+  filter(str_detect(id, regex("^48Z", ignore_case = TRUE)))
+
+
+get_fit_check_suspects <- get_fit_now_check_in |>
+  filter(str_detect(membership_id, regex("^48Z", ignore_case = TRUE))) |>
+  filter(check_in_date == 20180109)
+
+suspects_combined <- get_fit_check_suspects |>
+  inner_join(get_fit_member_suspects, by = c("membership_id" = "id"))
+
 ```
 
 -   Date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-3-date
+
+sql_symphony_attendees <- facebook_event_checkin |>
+ filter(str_detect(event_name, regex("SQL Symphony Concert", ignore_case = TRUE)),
+   lubridate::year(date) == 2017,
+   lubridate::month(date) == 12)
 
 ```
 
@@ -154,6 +212,16 @@ glimpse(teacher_evals_clean)
 
 ```{r}
 #| label: wd-4-numeric-ex-1
+
+#lab 3 question 1
+
+sen_vs_jun <- teacher_evals |>
+  filter(question_no == 903) |>
+  mutate(
+    SET_level = if_else(SET_score_avg >= 4, "excellent", "standard"),
+    sen_level = if_else(seniority <= 4, "junior", "senior")
+  ) |>
+  select(course_id, SET_level, sen_level) 
 
 ```
 
