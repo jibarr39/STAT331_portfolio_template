@@ -1,16 +1,17 @@
 ---
 title: "STAT 331 Portfolio"
 author: "Jennifer Ibarra"
-format: html 
+format: html
+code-overflow: scroll
 embed-resources: true
 layout: margin-left
 editor: visual
 execute: 
-  eval: false #code is not being evaluated, dont need to read in packages or data
+  eval: false 
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an C.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an D.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -45,7 +46,7 @@ teacher_evals <- read_csv("teacher_evals.csv")
 ```{r}
 #| label: wd-1-xlsx
 
-#have not done this yet ;)
+
 
 ```
 
@@ -55,20 +56,6 @@ teacher_evals <- read_csv("teacher_evals.csv")
 
 ```{r}
 #| label: wd-2-ex-1
-
-teacher_evals_clean |>
-  filter(academic_degree %in% c("dr", "prof")) |>
-  group_by(teacher_id, seniority, sex) |>
-  summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
-            .groups = "drop") |>
-  slice_min(avg_response_rate, n = 1) |>
-  bind_rows(teacher_evals_clean |>
-      filter(academic_degree %in% c("dr", "prof")) |>
-      group_by(teacher_id, seniority, sex) |>
-      summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
-                .groups = "drop") |>
-      slice_max(avg_response_rate, n = 1))
-
 #Growing comment: Selecting columns based on their names doesn't require quotes!
 
 #Got rid of the quotes in the 
@@ -79,7 +66,7 @@ teacher_evals_clean <- teacher_evals |>
   filter(no_participants > 10) |>
   mutate(teacher_id = as.character(teacher_id),
          question_no = as.character(question_no)) |>
-  select(course_id, teacher_id, question_no, no_participants, resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
+  select(course_id, teacher_id, question_no, no_participants,  resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) #all this
 
 glimpse(teacher_evals_clean)
 ```
@@ -89,18 +76,8 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-2-ex-2
 
-#Growing comment: Selecting columns based on their names doesn't require quotes!
+#need one here
 
-#Lab 3 Question 5
-
-teacher_evals_clean <- teacher_evals |>
-  rename(sex = gender) |>
-  filter(no_participants > 10) |>
-  mutate(teacher_id = as.character(teacher_id),
-         question_no = as.character(question_no)) |>
-  select("course_id", "teacher_id", "question_no", "no_participants", "resp_share", "SET_score_avg", "percent_failed_cur", "academic_degree", "seniority", "sex")
-
-glimpse(teacher_evals_clean)
 
 ```
 
@@ -109,18 +86,10 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-2-ex-3
 
-#okay so in this line of code; I could have tweaked it to use a function selected columns. Within the mutate function I could have 
-teacher_evals_clean <- teacher_evals |>
-  rename(sex = gender) |>
-  filter(no_participants > 10) |>
-  mutate(teacher_id = as.character(teacher_id),
-         question_no = as.character(question_no)) |>
-  select(course_id, teacher_id, question_no, no_participants, resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex)
-
 #lab 4
 
 childcare_long <- ca_childcare |>
-  pivot_longer(cols = starts_with("mc_"),  
+  pivot_longer(cols = starts_with("mc_"), #here
     names_to = "age_group",
     names_prefix = "mc_",
     values_to = "weekly_price")
@@ -132,21 +101,14 @@ childcare_long <- ca_childcare |>
 -   Numeric Example 1
 
 ```{r}
-#| label: wd-3-numeric-ex-1
+#| label: wd-3-numeric-ex-0
 
-ca_childcare <- ca_childcare |> 
-  mutate(county_name = str_remove(county_name, " County")) |>
-  mutate(census_region = fct_collapse(county_name,
-    "Superior California" = superior_counties,
-    "North Coast" = north_coast_counties,
-    "San Francisco Bay Area" = san_fran_counties,
-    "Northern San Joaquin Valley" = n_san_joaquin_counties,
-    "Central Coast" = central_coast_counties,
-    "Southern San Joaquin Valley" = s_san_joaquin_counties,
-    "Inland Empire" = inland_counties,
-    "Los Angeles" = la_county,
-    "Orange" = orange_county,
-    "San Diego/Imperial" = san_diego_imperial_counties))
+median_household <- ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |> #right here
+  group_by(census_region, study_year) |>
+  summarise(median_income = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = study_year, values_from = median_income) |>
+  arrange(desc("2018"))
 
 ```
 
@@ -154,6 +116,13 @@ ca_childcare <- ca_childcare |>
 
 ```{r}
 #| label: wd-3-numeric-ex-1
+
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |> #right here
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select("course_id", "teacher_id", "question_no", "no_participants", "resp_share", "SET_score_avg", "percent_failed_cur", "academic_degree", "seniority", "sex")
 
 #need to find another example of this
 
@@ -237,12 +206,30 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-4-factor-ex-1
 
+#lab 4 question 7
+
+childcare_long <- ca_childcare |>
+  pivot_longer(cols = starts_with("mc_"),  
+    names_to = "age_group",
+    names_prefix = "mc_",
+    values_to = "weekly_price")
+
+childcare_long <- childcare_long |>
+  mutate(census_region = fct_reorder(census_region, weekly_price, .fun = median, na.rm = TRUE),
+    age_group = str_to_title(age_group))
+
+#need to alter this and add a relevel for the infant, toddler, and preschooler name.
+
 ```
 
 -   Factor Example 2 (reordering levels)
 
 ```{r}
 #| label: wd-4-factor-ex-2
+
+childcare_long <- childcare_long |>
+  mutate(census_region = fct_reorder(census_region, weekly_price, .fun = median, na.rm = TRUE),
+    age_group = str_to_title(age_group))
 
 ```
 
@@ -251,12 +238,31 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-4-string
 
+#lab 4 question 4
+
+ca_childcare <- ca_childcare |> 
+  mutate(county_name = str_remove(county_name, " County")) |> #here
+  mutate(census_region = fct_collapse(county_name,
+    "Superior California" = superior_counties,
+    "North Coast" = north_coast_counties,
+    "San Francisco Bay Area" = san_fran_counties,
+    "Northern San Joaquin Valley" = n_san_joaquin_counties,
+    "Central Coast" = central_coast_counties,
+    "Southern San Joaquin Valley" = s_san_joaquin_counties,
+    "Inland Empire" = inland_counties,
+    "Los Angeles" = la_county,
+    "Orange" = orange_county,
+    "San Diego/Imperial" = san_diego_imperial_counties))
+
 ```
 
 -   Date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
+
+sql_symphony_attendees <- facebook_event_checkin |>
+ filter(str_detect(event_name, regex("SQL Symphony Concert", ignore_case = TRUE)), year(date) == 2017, month(date) == 12)
 
 ```
 
@@ -267,12 +273,34 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-5-left-ex-1
 
+ca_childcare <- childcare_costs |> 
+                left_join(x = childcare_costs,
+                          y = counties,
+                          by = join_by(county_fips_code == county_fips_code)) |>
+                filter(state_name == "California")
+
 ```
 
 -   `right_join()` Example 1
 
 ```{r}
 #| label: wd-5-right
+
+witness1 <- person |>
+  filter(str_detect(address_street_name, regex("Northwestern Dr", ignore_case = TRUE))) |> 
+  filter(address_number == max(address_number))
+
+witness2 <- person |>
+  filter(str_detect(address_street_name, regex("Franklin Ave", ignore_case = TRUE))) |> 
+  filter(str_detect(name, "Annabel"))
+
+witnesses <- bind_rows(witness1, witness)
+
+#so this worked but we can add a right join here for fun by just
+
+witness_join <- right_join(person, witnesses, by ="person_id")
+
+#now it is in one dataframe
 
 ```
 
@@ -281,6 +309,12 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-5-left-right-ex-2
 
+ca_childcare <- ca_childcare |>
+              left_join ( x = ca_childcare,
+                          y = tax_rev_clean,
+                          by = join_by(county_name == entity_name)) |>
+              group_by(county_name)
+
 ```
 
 -   `inner_join()` Example 1
@@ -288,12 +322,17 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-5-inner-ex-1
 
+witnesses <- witnesses |>
+  inner_join(interview, by = c("id" = "person_id"))
 ```
 
 -   `inner_join()` Example 2
 
 ```{r}
 #| label: wd-5-inner-ex-2
+
+suspects_combined <- get_fit_check_suspects |>
+  inner_join(get_fit_member_suspects, by = c("membership_id" = "id"))
 
 ```
 
@@ -324,12 +363,26 @@ sen_vs_jun <- teacher_evals |>
 ```{r}
 #| label: wd-7-long
 
+childcare_long <- ca_childcare |>
+  pivot_longer(cols = starts_with("mc_"),  
+    names_to = "age_group",
+    names_prefix = "mc_",
+    values_to = "weekly_price")
+
 ```
 
 -   `pivot_wider()`
 
 ```{r}
 #| label: wd-7-wide
+
+median_household <- ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarise(median_income = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = study_year, values_from = median_income) |>
+  arrange(desc("2018"))
+
 
 ```
 
@@ -352,6 +405,13 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: r-2-1
 
+ggplot(data = surveys, 
+       mapping = aes(x = weight, y = hindfoot_length)) +
+  geom_point(color = "salmon", alpha = 0.5) +
+  facet_wrap(~species) +
+  labs( x= "Weight (g)",y = NULL, title = "Relationship between weight and hindfoot length across rodent species", subtitle = "Hindfoot Length (mm)") +
+  theme(plot.subtitle = element_text(hjust = 0.5))
+
 ```
 
 -   Example of **dplyr** pipeline
@@ -359,12 +419,21 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: r-2-2
 
+median_household <- ca_childcare |>
+  filter(study_year %in% c(2008, 2018)) |>
+  group_by(census_region, study_year) |>
+  summarise(median_income = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = study_year, values_from = median_income) |>
+  arrange(desc("2018"))
+
 ```
 
 -   Example of function formatting
 
 ```{r}
 #| label: r-2-3
+
+
 
 ```
 
@@ -382,6 +451,7 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: r-3-function-stops
 
+
 ```
 
 ## Data Visualization & Summarization
@@ -393,12 +463,31 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-1-num
 
+ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_region)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ age_group) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold"))
+
+
 ```
 
 -   At least one numeric variable and one categorical variable
 
 ```{r}
 #| label: dvs-2-num-cat
+
+ggplot(data = surveys, 
+       mapping = aes(y = species, x = weight)) +
+  geom_jitter(color = "grey", alpha = 0.5) +
+  geom_boxplot(aes(fill = sex), outliers = FALSE) +
+  scale_fill_brewer(palette = 5)
+  labs( y= "Species of Rodent",x = "Weight (g)", title = "Relationship between species of rodents and their weight")
 
 ```
 
@@ -407,12 +496,25 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-2-cat
 
+ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_region)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ age_group) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region") +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold"))
+
 ```
 
 -   Dates (time series plot)
 
 ```{r}
 #| label: dvs-2-date
+
+#focus on this
 
 ```
 
@@ -444,8 +546,27 @@ The following assignments satisfy the above criteria:
 ```{r}
 #| label: dvs-2-ex-4
 
+#before code chunk, I did not change the font size and I did not separate
+ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_region)) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ age_group) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+    x = "Study Year",
+    y = NULL,
+    color = "California Region") +
+  theme_minimal(base_size = 9) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) 
+
+#here is what my code should have included along with changing the font size to 9 instead of 12
+
++ scale_x_continuous(breaks = seq(2008, 2018, by = 2), expand = expansion(mult = c(0.05,0.05))) +
+  scale_y_continuous(labels = dollar)
 ```
 
+-   Before and after
+-   
+-   ![](images/clipboard-1844204121.png)![](images/clipboard-739741966.png)
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
@@ -686,14 +807,22 @@ The following assignments satisfy the above criteria:
 
 <!-- How did you revise your thinking throughout the course? How did you revise your thinking on the code examples you have provided in your portfolio? -->
 
+I think I am quick to be satisfied if the code runs and gets me moving forward. It's nice to be given the resources on how to own my code but I still think I am in a position where I am insecure with my abilities to even start a line without referring to the cheat sheets or looking at previous work.
+
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
 
+I think that a lot of my thought process with coding was that efficiency and customization comes last compared to having just the code run. So a big challenge with this course was making space for finding ways that my code could be more professional looking or colorful and not only being satisfied with the code running and getting an answer. I think a lot of lab 5 made me realize like how I should be doing things instead of trying to get a glimpse of an answer by binding rows or searching through the dataframe itself.
+
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
+I have not been supportive of my peers enough to provide evidence of quality feedback. I look forward to changing this response as the final portfolio approaches.
+
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+I think this varies because either I am confident in solving the task and can keep up with like a CS major or a more R savvy person or I take too long to think of a line of code to tell the coder and they just take over because class is ending in soon. So I could be faster and give my partner more confidence so that doesn't happen again. At the same time though I've had a partner that was shy and preferred that I took over but then that gives me space to be slow and take my time thinking of code or looking for references.
