@@ -26,7 +26,7 @@ execute:
 
 surveys <- read_csv("surveys.csv")
 
-#lab 2 
+#lab 2 Q1
 
 ```
 
@@ -35,9 +35,10 @@ surveys <- read_csv("surveys.csv")
 ```{r}
 #| label: wd-1-csv-2
 
-teacher_evals <- read_csv("teacher_evals.csv")
+surveys <- read_csv(here("Week 2", "Lab 2", "surveys.csv"))
 
-#lab 3
+#the original code from lab 9 had here::here() but since we would have the here package loaded we wouldn't need that.
+
 
 ```
 
@@ -45,6 +46,16 @@ teacher_evals <- read_csv("teacher_evals.csv")
 
 ```{r}
 #| label: wd-1-xlsx
+
+library(readxl)
+military <- read_xlsx("gov_spending_per_capita.xlsx",
+                      sheet = ,
+                      skip  = ,
+                      n_max = ,
+                      na = c()
+                      )
+
+#PA4 Question 1, so why do we even hav sheet, skip, n_max, or na = c()? These options allow us to naviagate an excel sheet with multiple subsheets, header rows that aren't data, how many rows to read, and how to interpret NAs in our file.
 
 
 
@@ -68,6 +79,8 @@ teacher_evals_clean <- teacher_evals |>
          question_no = as.character(question_no)) |>
   select(course_id, teacher_id, question_no, no_participants,  resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) #all this
 
+#CHECK ON MIDTERM EVAL
+
 glimpse(teacher_evals_clean)
 ```
 
@@ -76,7 +89,15 @@ glimpse(teacher_evals_clean)
 ```{r}
 #| label: wd-2-ex-2
 
-#need one here
+teacher_evals_clean <- teacher_evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select(-stud_grade_avg:-stud_grade_var_coef, 
+         -stud_grade_avg_cur:-maximum_score)
+
+#alright so what if we just not selected the other columns? Ta-dah
 
 
 ```
@@ -93,6 +114,8 @@ childcare_long <- ca_childcare |>
     names_to = "age_group",
     names_prefix = "mc_",
     values_to = "weekly_price")
+
+#CHECK ON MIDTERM EVAL
 
 ```
 
