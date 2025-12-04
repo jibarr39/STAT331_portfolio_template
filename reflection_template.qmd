@@ -26,11 +26,7 @@ execute:
 
 surveys <- read_csv("surveys.csv")
 
-install.packages("gitcreds")
-gitcreds::gitcreds_set()
-
-
-1#lab 2 Q1
+#lab 2 Q1
 
 ```
 
