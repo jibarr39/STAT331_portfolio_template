@@ -207,13 +207,27 @@ sql_symphony_attendees <- facebook_event_checkin |>
 
 #lab 3 question 1
 
-sen_vs_jun <- teacher_evals |>
+summary_table <- evals |>
   filter(question_no == 903) |>
   mutate(
     SET_level = if_else(SET_score_avg >= 4, "excellent", "standard"),
-    sen_level = if_else(seniority <= 4, "junior", "senior")
-  ) |>
-  select(course_id, SET_level, sen_level) 
+    sen_level = case_when(
+      seniority <= 4 ~ "junior",          
+      seniority <= 8 ~ "senior",          
+      seniority > 8  ~ "very senior")) |>
+  select(course_id, SET_level, sen_level) |>
+  count(sen_level, name = "n") |>
+  mutate(prop = n / sum(n),
+         variable = "Seniority Level",
+         level = sen_level) |>
+  select(variable, level, n, prop) |>
+  kable(caption = "Distribution of Academic Degree",
+        col.names = c("Variable", 
+                      "Level", 
+                      "n", 
+                      "prop"), bold = TRUE) |>
+  kable_styling(
+    bootstrap_options = c("striped", "condensed")) 
 
 ```
 
@@ -221,6 +235,10 @@ sen_vs_jun <- teacher_evals |>
 
 ```{r}
 #| label: wd-4-numeric-ex-2
+
+ep = rnorm(n = 100, mean = 0, sd = sqrt(1))
+
+#okay hear me out! I am technically creating a numeric variable here by making by epsilon with the random normal distribution function.
 
 ```
 
@@ -231,15 +249,16 @@ sen_vs_jun <- teacher_evals |>
 
 #lab 4 question 7
 
-childcare_long <- ca_childcare |>
-  pivot_longer(cols = starts_with("mc_"),  
-    names_to = "age_group",
-    names_prefix = "mc_",
-    values_to = "weekly_price")
-
 childcare_long <- childcare_long |>
-  mutate(census_region = fct_reorder(census_region, weekly_price, .fun = median, na.rm = TRUE),
-    age_group = str_to_title(age_group))
+  mutate(
+    census_region = fct_reorder(census_region, weekly_price, .fun = median, na.rm = TRUE),
+    age_group = factor(age_group) |> 
+      fct_recode(
+        "Infant"      = "infant",
+        "Toddler"     = "toddler",
+        "Preschooler" = "preschool"
+      )
+  )
 
 #need to alter this and add a relevel for the infant, toddler, and preschooler name.
 
@@ -456,6 +475,42 @@ median_household <- ca_childcare |>
 ```{r}
 #| label: r-2-3
 
+#Lab 10 Q #8
+
+mycifun <- function(beta0 = 2, beta1 = 1, n = 100) {
+  
+
+# generate x vector
+
+x = runif(n, min = 1, max = 100)
+
+
+# generate noise `ep` vector
+
+ep = rnorm(n = n, mean = 0, sd = sqrt(1))
+
+
+# generate outcome from population model
+y = beta0 + x*beta1 + ep
+
+
+# create an "observed data" dataframe with only the x and y vectors
+
+observed_data <- tibble(x,y)
+
+
+observed_data_lm <- lm(y ~ x,
+                       data = observed_data) 
+
+extract_observed <- tidy(observed_data_lm,
+                         conf.int = TRUE,
+                         conf.level = 0.95) |>
+                    filter(term == "x") |>
+                    select(estimate, conf.low, conf.high) 
+
+extract_observed |>
+ mutate(cover = if_else(conf.high > beta1, TRUE, FALSE)) }
+
 
 
 ```
@@ -467,12 +522,31 @@ median_household <- ca_childcare |>
 ```{r}
 #| label: r-3-example
 
+randomBabies <- function(n_babies){
+  
+      babies <- rbinom(1, n_babies, 1/n_babies)
+
+}
+
+#important to start with 1 simulation so that we can switch it up
 ```
 
 -   Example (function stops)
 
 ```{r}
 #| label: r-3-function-stops
+
+rescale_01 <- function(x) {
+    if(!is.numeric(x)) {stop("input vector is not numeric")}
+
+    if(length(x) <=1) {stop("the length of the input vector is not greater than one")}
+
+    # (x - min(x, na.rm = TRUE)) / (max(x, na.rm = TRUE) - min(x, na.rm = TRUE))
+  
+      r <- range(x, na.rm = TRUE)
+        (x - r[1]) / (r[2] - r[1])
+
+}
 
 
 ```
@@ -636,6 +710,22 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-3-3
 
+ci_dat <- ci_dat |>
+  mutate(MultiverseNum = 1:100, 
+         inside_bounds = conf.low <=1 & conf.high > 1) |> 
+  ggplot(aes(x = conf.low, 
+             xend = conf.high, 
+             y = MultiverseNum, 
+             yend = MultiverseNum, 
+             color = inside_bounds )) +
+  geom_segment() +
+   scale_color_manual(values = c(`TRUE` = "darkgreen", `FALSE` = "magenta"))+
+ geom_point(aes(x = estimate, y = MultiverseNum), color = "black", size = 1) +
+  labs(x = "Slope Coefficient Estimate", y = NULL,
+title = "95% Confidence Intervals of Estimated Regression Slope for 100 Multiverses", 
+subtitle =
+"CI's that do not include the population slope (1) are magenta")
+
 ```
 
 **DVS-4: I can calculate numerical summaries of variables.**
@@ -720,8 +810,11 @@ surveys |>
         map_chr(class) |>
         enframe(name = "Variable", value = "Data Type") |>
         arrange("Variable") |>
-        kable(caption = "Summary of Data Types in Surveys Dataset",
-              bold = TRUE)
+        kable(caption = "Summary of Data Types in Surveys Dataset") |>
+        kable_styling() |>
+        row_spec(0, bold = TRUE)
+
+#the kable() function already bolds automatically but kable_styling helps narrow down which row we want bolded
 
 ```
 
@@ -734,8 +827,7 @@ surveys |>
         map_chr(class) |>
         enframe(name = "Variable", value = "Data Type") |>
         arrange("Variable") |> #here
-        kable(caption = "Summary of Data Types in Surveys Dataset",
-              bold = TRUE)
+        kable(caption = "Summary of Data Types in Surveys Dataset")
 
 ```
 
@@ -787,12 +879,31 @@ surveys |>
 ```{r}
 #| label: pe-2-1
 
+imposs_NA <- function(x, min, max) {
+  case_when(
+    x < min ~ NA,
+    x > max ~ NA,
+    .default = x
+  )
+}
+
+imposs_NA(1:10, min = 3, max = 7)
+
 ```
 
 -   Example 2: Function that operates on data frames
 
 ```{r}
 #| label: pe-2-2
+
+rescale_column <- function(df, cols){
+  df |> 
+    mutate(
+      across(.cols = {{ cols }}, 
+             .fns = ~ rescale_01(.x)
+             )
+      )
+}
 
 ```
 
@@ -810,12 +921,22 @@ surveys |>
 ```{r}
 #| label: pe-3-across
 
+
+rescale_column <- function(df, cols){
+  df |> 
+    mutate(
+      across(.cols = {{ cols }}, 
+             .fns = ~ rescale_01(.x)
+             )
+      )
+}
 ```
 
 -   using a `map()` function with **one** input (e.g., `map()`, `map_chr()`, `map_dbl()`, etc.)
 
 ```{r}
 #| label: pe-3-map-1
+
 
 ```
 
