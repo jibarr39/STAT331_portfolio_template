@@ -537,7 +537,18 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-2-date
 
-#focus on this
+ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = section)) +
+  geom_point(alpha = 0.4, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ trip) +
+  scale_color_manual(values = c("blue", "orange")) +
+   labs(title = "Amount of NAs over time by section leader",
+    x = "Years",
+    y = NULL,
+    color = "Section Leader") +
+  theme_minimal(base_size = 8) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) +
+  theme_gray()
 
 ```
 
@@ -634,12 +645,23 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-4-summarize
 
+ci_dat |>
+summarize(porp = sum(cover)/length(cover))
 ```
 
 -   Example using `across()`
 
 ```{r}
 #| label: dvs-4-across
+
+rescale_column <- function(df, cols){
+  df |> 
+    mutate(
+      across(.cols = {{ cols }}, 
+             .fns = ~ rescale_01(.x)
+             )
+      )
+}
 
 ```
 
@@ -650,12 +672,30 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-5-1
 
+frequent_sql_attendees <- sql_symphony_attendees |>
+  group_by(person_id) |>
+  summarise(times_attended = n()) |>
+  filter(times_attended >= 3)
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-5-2
+
+teacher_evals_clean |>
+  filter(academic_degree %in% c("dr", "prof")) |>
+  group_by(teacher_id, seniority, sex) |>
+  summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
+            .groups = "drop") |>
+  slice_min(avg_response_rate, n = 1) |>
+  bind_rows(teacher_evals_clean |>
+      filter(academic_degree %in% c("dr", "prof")) |>
+      group_by(teacher_id, seniority, sex) |>
+      summarise(avg_response_rate = mean(resp_share, na.rm = TRUE), 
+                .groups = "drop") |>
+      slice_max(avg_response_rate, n = 1))
 
 ```
 
@@ -666,6 +706,9 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-6-ex-1
 
+fish_NA_sum <-map_int(fish, ~sum(is.na(.x))) |>
+              enframe(name = "Variable", value = "NA Counts")
+
 ```
 
 -   I can modify the text in my table to be more readable (e.g., bold face for column headers)
@@ -673,12 +716,26 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-6-ex-2
 
+surveys |>
+        map_chr(class) |>
+        enframe(name = "Variable", value = "Data Type") |>
+        arrange("Variable") |>
+        kable(caption = "Summary of Data Types in Surveys Dataset",
+              bold = TRUE)
+
 ```
 
 -   I can arrange my table to have an intuitive ordering
 
 ```{r}
 #| label: dvs-6-ex-3
+
+surveys |>
+        map_chr(class) |>
+        enframe(name = "Variable", value = "Data Type") |>
+        arrange("Variable") |> #here
+        kable(caption = "Summary of Data Types in Surveys Dataset",
+              bold = TRUE)
 
 ```
 
