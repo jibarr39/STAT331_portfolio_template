@@ -734,14 +734,9 @@ summarize(porp = sum(cover)/length(cover))
 ```{r}
 #| label: dvs-4-across
 
-rescale_column <- function(df, cols){
-  df |> 
-    mutate(
-      across(.cols = {{ cols }}, 
-             .fns = ~ rescale_01(.x)
-             )
-      )
-}
+fish |>
+  select(everything()) |>  
+  summarize(across(everything(), ~ sum(is.na(.))))
 
 ```
 
@@ -857,12 +852,43 @@ pivot_table <- function(data, rows, cols) {
 ```{r}
 #| label: pe-1-one-call
 
+# witness1 <- person |>
+#   filter(str_detect(address_street_name, regex("Northwestern Dr", ignore_case = TRUE))) |> 
+#   filter(address_number == max(address_number))
+
+# witness2 <- person |>
+#   filter(str_detect(address_street_name, regex("Franklin Ave", ignore_case = TRUE))) |> 
+#   filter(str_detect(name, "Annabel"))
+
+# witnesses <- bind_rows(witness1, witness2)
+
+#the code above could be fixed by maximizing the use of the filter function. We could instead combine the filters per witness instead of a new filter line for each row. 
+
+witness1 <- person |>
+  filter(
+    str_detect(address_street_name, "Northwestern Dr"),
+    address_number == max(address_number)
+  )
+
+witness2 <- person |>
+  filter(
+    str_detect(address_street_name, "Franklin Ave"),
+    str_detect(name, "Annabel")
+  )
+
+witnesses <- bind_rows(witness1, witness2)
+
+
 ```
 
 -   using `across()`
 
 ```{r}
 #| label: pe-1-across
+
+tax_rev_clean <- tax_rev |>
+                group_by(entity_name) |>
+                summarise(across(everything(), first), .groups = "drop")
 
 ```
 
@@ -913,6 +939,18 @@ rescale_column <- function(df, cols){
 ```{r}
 #| label: pe-2-3
 
+plot_function <- function(df, x, y, color) {
+  
+  label <- rlang::englue("Flipper length vs Body mass across penguin species")
+  
+  df |>
+    ggplot(aes(x = {{ x }}, y = {{ y }}, color = {{ color }})) +
+    geom_point() +
+    labs(title = label, 
+         x = " Flipper length (mm)", 
+         y = " Body mass (g) ")
+  
+}
 ```
 
 **PE-3:I can use iteration to reduce repetition in my code.**
@@ -971,6 +1009,25 @@ ci_dat <- map(.x = 1:1000,
 
 ```{r}
 #| label: pe-4-2
+
+ci_dat <- ci_dat |>
+  map(.x = 1:100,
+      .f = ~mycifun(beta0 = 0, beta1 = 1, n = 100)) |>
+  bind_rows() |>
+  mutate(MultiverseNum = 1:100, 
+         inside_bounds = conf.low <=1 & conf.high > 1) |> 
+  ggplot(aes(x = conf.low, 
+             xend = conf.high, 
+             y = MultiverseNum, 
+             yend = MultiverseNum, 
+             color = inside_bounds )) +
+  geom_segment() +
+   scale_color_manual(values = c(`TRUE` = "darkgreen", `FALSE` = "magenta"))+
+ geom_point(aes(x = estimate, y = MultiverseNum), color = "black", size = 1) +
+  labs(x = "Slope Coefficient Estimate", y = NULL,
+title = "95% Confidence Intervals of Estimated Regression Slope for 100 Multiverses", 
+subtitle =
+"CI's that do not include the population slope (1) are magenta")
 
 ```
 
@@ -1074,6 +1131,10 @@ chisq.test(chi_data)
 
 ```{r}
 #| label: dsm-2-3
+
+t.test(ToothGrowth$len)
+
+#Lab 1 Q #10
 
 ```
 
