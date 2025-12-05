@@ -124,7 +124,6 @@ childcare_long <- ca_childcare |>
     names_prefix = "mc_",
     values_to = "weekly_price")
 
-#CHECK ON MIDTERM EVAL
 
 ```
 
@@ -175,11 +174,11 @@ teacher_evals_clean <- teacher_evals |>
 #| label: wd-3-character
 
 witness1 <- person |>
-  filter(str_detect(address_street_name, regex("Northwestern Dr", ignore_case = TRUE))) |> 
+  filter(str_detect(address_street_name, "Northwestern Dr")) |> 
   filter(address_number == max(address_number))
 
 witness2 <- person |>
-  filter(str_detect(address_street_name, regex("Franklin Ave", ignore_case = TRUE))) |> 
+  filter(str_detect(address_street_name, "Franklin Ave")) |> 
   filter(str_detect(name, "Annabel"))
 
 witnesses <- bind_rows(witness1, witness2)
@@ -192,11 +191,10 @@ witnesses <- bind_rows(witness1, witness2)
 #| label: wd-3-string
 
 get_fit_member_suspects <- get_fit_now_member |>
-  filter(str_detect(id, regex("^48Z", ignore_case = TRUE)))
-
+  filter(str_detect(id, "^48Z"))  
 
 get_fit_check_suspects <- get_fit_now_check_in |>
-  filter(str_detect(membership_id, regex("^48Z", ignore_case = TRUE))) |>
+  filter(str_detect(membership_id, "^48Z")) |>  
   filter(check_in_date == 20180109)
 
 suspects_combined <- get_fit_check_suspects |>
@@ -280,7 +278,7 @@ childcare_long <- childcare_long |>
       )
   )
 
-#need to alter this and add a relevel for the infant, toddler, and preschooler name.
+
 
 ```
 
@@ -357,11 +355,11 @@ ca_childcare <- childcare_costs |>
 #| label: wd-5-right
 
 witness1 <- person |>
-  filter(str_detect(address_street_name, regex("Northwestern Dr", ignore_case = TRUE))) |> 
+  filter(str_detect(address_street_name, "Northwestern Dr")) |> 
   filter(address_number == max(address_number))
 
 witness2 <- person |>
-  filter(str_detect(address_street_name, regex("Franklin Ave", ignore_case = TRUE))) |> 
+  filter(str_detect(address_street_name, "Franklin Ave")) |> 
   filter(str_detect(name, "Annabel"))
 
 witnesses <- bind_rows(witness1, witness)
@@ -413,9 +411,16 @@ suspects_combined <- get_fit_check_suspects |>
 ```{r}
 #| label: wd-6-semi
 
-#suspect list not joining the interview data with suspect but filtering the interview data set 
+innerwitnesses <- witnesses |>
+  inner_join(interview, by = c("id" = "person_id"))
+innerwitnesses
 
-#semi joins are only looking for matches
+semiwitnesses <- witnesses |>
+  semi_join(interview, by = c("id" = "person_id"))
+semiwitnesses
+
+#using a semijoin will get us the same result
+
 
 ```
 
@@ -423,6 +428,85 @@ suspects_combined <- get_fit_check_suspects |>
 
 ```{r}
 #| label: wd-6-anti
+
+#my before code from Lab 5 filtering attendees that attended the symphony more than or exactly 3 times
+frequent_sql_attendees <- sql_symphony_attendees |>
+  group_by(person_id) |>
+  summarise(times_attended = n()) |>
+  filter(times_attended >= 3)
+
+frequent_sql_attendees
+
+#then I checked if that attendee had an interview and if they had a gym membership
+#person_id is 24556 and 99716
+
+interview_check <- interview |>
+  filter(person_id == "99716 | 24556")
+
+interview_check
+
+#rats so no interview which means this person 
+#is in the wild...let's check the fit now membership 
+#and see if this person has a membership?
+
+get_fit_now_member_check <- get_fit_now_member |>
+  filter(person_id == "24556")
+
+get_fit_now_member_check
+
+#using an antijoin here would have told me who attended the concert and does NOT have a gym membership and doesn't have an interview. Since the murderer is still at large they wouldn't have a interview and the gym membership was just a hunch from the personal ID. 
+
+fit_members <- get_fit_now_member |> select(person_id)
+
+concert_no_fit <- frequent_sql_attendees |>
+  anti_join(fit_members, by = "person_id")
+
+# #https://chatgpt.com/
+# In the **SQL Murder Mystery (“SQL City”)** challenge, an **anti-join** is most useful at the point where you need to find **which suspects *do not* appear somewhere they should** — in other words, when eliminating people based on missing evidence.
+# 
+# ### ⭐ Best Place to Use an Anti-Join
+# 
+# The clearest spot is when you’re trying to answer questions like:
+# 
+# > **“Which people in the `person` table *don’t* appear in the list of valid suspects derived from clues?”**
+# 
+# More specifically, many solvers use an **anti-join** when narrowing down suspects by excluding anyone who **doesn’t have matching evidence in related tables**, such as:
+# 
+# * People **not** found in the `income` table when looking for someone wealthy
+# * People **not** holding a gym membership
+# * People who **didn’t appear** at the crime scene based on `interview` or `facebook_event_checkin` tables
+# * People **not** matching physical clues like height, hair color, etc.
+# 
+# ### 💡 Concrete Example
+# 
+# Suppose you’ve determined from the clues that suspects must have a gym membership. An anti-join can give you the people who *don’t*:
+# 
+# ```sql
+# SELECT p.*
+# FROM person p
+# LEFT JOIN get_fit_now_member g
+#     ON p.id = g.person_id
+# WHERE g.person_id IS NULL;
+# ```
+# 
+# This returns **people who do not have a Get Fit Now membership** — effectively removing people who *can't* be the suspect.
+# 
+# ### 🧠 Why Anti-Joins Help
+# 
+# Anti-joins let you turn logic like:
+# 
+# * “We know the killer **must** have X”
+# 
+# into:
+# 
+# * “Remove everyone who **doesn’t** have X.”
+# 
+# This dramatically reduces the search space and makes it easier to confirm the final culprit.
+# 
+# ---
+# 
+# If you want, I can walk you through exactly where to apply it step-by-step in the SQL Murder Mystery.
+
 
 ```
 
@@ -868,6 +952,16 @@ surveys |>
 
 ```{r}
 #| label: dvs-7-ex-1
+
+surveys |>
+        map_chr(class) |>
+        enframe(name = "Variable", value = "Data Type") |>
+        arrange("Variable") |>
+        kable(caption = "Summary of Data Types in Surveys Dataset") |>
+        kable_styling() |>
+        row_spec(0, bold = TRUE, background = "lightpink")
+#I just made the header pink but if I alter that 0 to a different row number then that row would be pink.
+#https://r-graph-gallery.com/362-customize-colors-in-kableExtra.html
 
 ```
 
