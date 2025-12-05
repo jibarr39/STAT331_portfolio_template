@@ -2202,7 +2202,7 @@ vertical-align: -.125em;
 </header>
 
 
-<p><u><strong>My Grade:</strong></u> I believe my grade equivalent to course work evidenced below to be an D.</p>
+<p><u><strong>My Grade:</strong></u> I believe my grade equivalent to course work evidenced below to be an C.</p>
 <p><u><strong>Learning Objective Evidence:</strong></u> In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify <strong>where</strong> the code came from (e.g., Lab 4 Question 2).</p>
 <section id="working-with-data" class="level2">
 <h2 class="anchored" data-anchor-id="working-with-data">Working with Data</h2>
@@ -2363,9 +2363,10 @@ vertical-align: -.125em;
 </ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>sql_symphony_attendees <span class="ot">&lt;-</span> facebook_event_checkin <span class="sc">|&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(<span class="fu">str_detect</span>(event_name, <span class="fu">regex</span>(<span class="st">&quot;SQL Symphony Concert&quot;</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)),</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>   lubridate<span class="sc">::</span><span class="fu">year</span>(date) <span class="sc">==</span> <span class="dv">2017</span>,</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>   lubridate<span class="sc">::</span><span class="fu">month</span>(date) <span class="sc">==</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(<span class="fu">str_detect</span>(event_name, </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>                   <span class="st">&quot;SQL Symphony Concert&quot;</span>), </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">year</span>(date) <span class="sc">==</span> <span class="dv">2017</span>, </span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                   <span class="fu">month</span>(date) <span class="sc">==</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>WD-4: I can modify existing variables and create new variables in a dataframe for a <em>variety</em> of data types (e.g., numeric, integer, character, factor, date).</strong></p>
 <ul>
@@ -2455,8 +2456,15 @@ vertical-align: -.125em;
 <li>Date (example must use functions from <strong>lubridate</strong>)</li>
 </ul>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>sql_symphony_attendees <span class="ot">&lt;-</span> facebook_event_checkin <span class="sc">|&gt;</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a> <span class="fu">filter</span>(<span class="fu">str_detect</span>(event_name, <span class="fu">regex</span>(<span class="st">&quot;SQL Symphony Concert&quot;</span>, <span class="at">ignore_case =</span> <span class="cn">TRUE</span>)), <span class="fu">year</span>(date) <span class="sc">==</span> <span class="dv">2017</span>, <span class="fu">month</span>(date) <span class="sc">==</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Growing Comment: It looks like you are using as.Date() to parse your dates. This is a tool that was not explicitly taught in lecture / lab. While this tool accomplishes this task, that is not the intention of this assignment. You are being assessed on your understanding of the tools that have been taught in this course. In the future, please use tools that have been taught in the course when addressing Lab questions.</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="co"># facebook_event_checkin &lt;- facebook_event_checkin |&gt;</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   mutate(date = as.Date(as.character(date), format = &quot;%Y%m%d&quot;))</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a><span class="co">#I have revised my code to use functions from the lubridate package. </span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>facebook_event_checkin <span class="ot">&lt;-</span> facebook_event_checkin <span class="sc">|&gt;</span> </span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">date =</span> <span class="fu">ymd</span>(<span class="fu">as.character</span>(date)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>WD-5: I can use mutating joins to combine multiple dataframes.</strong></p>
 <ul>

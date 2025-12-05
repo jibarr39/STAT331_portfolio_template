@@ -11,7 +11,7 @@ execute:
   echo: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an D.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an C.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -210,9 +210,11 @@ suspects_combined <- get_fit_check_suspects |>
 #| label: wd-3-date
 
 sql_symphony_attendees <- facebook_event_checkin |>
- filter(str_detect(event_name, regex("SQL Symphony Concert", ignore_case = TRUE)),
-   lubridate::year(date) == 2017,
-   lubridate::month(date) == 12)
+ filter(str_detect(event_name, 
+                   "SQL Symphony Concert"), 
+                   year(date) == 2017, 
+                   month(date) == 12)
+
 
 ```
 
@@ -321,8 +323,16 @@ ca_childcare <- ca_childcare |>
 ```{r}
 #| label: wd-4-date
 
-sql_symphony_attendees <- facebook_event_checkin |>
- filter(str_detect(event_name, regex("SQL Symphony Concert", ignore_case = TRUE)), year(date) == 2017, month(date) == 12)
+
+#Growing Comment: It looks like you are using as.Date() to parse your dates. This is a tool that was not explicitly taught in lecture / lab. While this tool accomplishes this task, that is not the intention of this assignment. You are being assessed on your understanding of the tools that have been taught in this course. In the future, please use tools that have been taught in the course when addressing Lab questions.
+
+# facebook_event_checkin <- facebook_event_checkin |>
+#   mutate(date = as.Date(as.character(date), format = "%Y%m%d"))
+
+#I have revised my code to use functions from the lubridate package. 
+
+facebook_event_checkin <- facebook_event_checkin |> 
+  mutate(date = ymd(as.character(date)))
 
 ```
 
