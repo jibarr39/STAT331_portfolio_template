@@ -77,7 +77,16 @@ teacher_evals_clean <- teacher_evals |>
   filter(no_participants > 10) |>
   mutate(teacher_id = as.character(teacher_id),
          question_no = as.character(question_no)) |>
-  select(course_id, teacher_id, question_no, no_participants,  resp_share, SET_score_avg, percent_failed_cur, academic_degree, seniority, sex) #all this
+  select(course_id, 
+         teacher_id, 
+         question_no, 
+         no_participants, 
+         resp_share, 
+         SET_score_avg, 
+         percent_failed_cur, 
+         academic_degree, 
+         seniority, 
+         sex) #all this
 
 #CHECK ON MIDTERM EVAL
 
@@ -145,7 +154,16 @@ teacher_evals_clean <- teacher_evals |>
   filter(no_participants > 10) |> #right here
   mutate(teacher_id = as.character(teacher_id),
          question_no = as.character(question_no)) |>
-  select("course_id", "teacher_id", "question_no", "no_participants", "resp_share", "SET_score_avg", "percent_failed_cur", "academic_degree", "seniority", "sex")
+  select(course_id, 
+         teacher_id, 
+         question_no, 
+         no_participants, 
+         resp_share, 
+         SET_score_avg, 
+         percent_failed_cur, 
+         academic_degree, 
+         seniority, 
+         sex)
 
 #need to find another example of this
 
@@ -686,6 +704,24 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 ```{r}
 #| label: dvs-3-1-ex-2
 
+ggplot(mean_fish, aes(x = year, 
+                       y = mean_fk, 
+                       color = species, 
+                       shape = species)) +
+  geom_point(alpha = 0.4, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  scale_color_manual(values = c("WCT" = "coral", 
+                                "RBT" = "salmon", 
+                                "Bull" = "darkseagreen", 
+                                "Brown" = "saddlebrown"))
+   labs(title = "Change in Montana Fish Health Over Time (Using Fulton's K)",
+    x = "Years",
+    y = NULL,
+    color = "species") +
+  theme_minimal(base_size = 8) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) +
+  theme_gray()
+
 ```
 
 -   I can use annotations (e.g., `geom_text()`)
@@ -897,6 +933,40 @@ tax_rev_clean <- tax_rev |>
 ```{r}
 #| label: pe-1-map-1
 
+#Lab 9 Q4
+#Success comment: 
+# Do you need to select for this to work? Can map_at() work on the entire dataset?
+
+teacher_evals_clean <- evals |>
+ # rename(sex = gender) |> 
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  select("course_id", "teacher_id", "question_no", "no_participants", "resp_share", "SET_score_avg", "percent_failed_cur", "academic_degree", "seniority", "sex") |>
+  map_at(c("course_id", #new code starts here, chef
+           "weekday", 
+           "academic_degree", 
+           "time_of_day", 
+            "sex"),
+          as.factor) |>
+  bind_cols()
+
+#not at this point! Just because we are just being asked to convert some columns to factors.
+
+teacher_evals_clean <- evals |>
+ # rename(sex = gender) |> 
+  filter(no_participants > 10) |>
+  mutate(teacher_id = as.character(teacher_id),
+         question_no = as.character(question_no)) |>
+  map_at(c("course_id", #new code starts here, chef
+           "weekday", 
+           "academic_degree", 
+           "time_of_day", 
+            "sex"),
+          as.factor) |>
+  bind_cols()
+
+#we can later select or remove columns we do or don't need for later analyses
 ```
 
 **PE-2: I can write functions to reduce repetition in my code.**
@@ -1119,11 +1189,20 @@ summary(species_mod)
 ```{r}
 #| label: dsm-2-2
 
-chi_data <- table(sen_vs_jun$sen_level, sen_vs_jun$SET_level)
+#chi_data <- table(sen_vs_jun$sen_level, sen_vs_jun$SET_level)
 
-view(chi_data)
+# view(chi_data)
 
-chisq.test(chi_data)
+# chisq.test(chi_data)
+
+#Growing Comment: This works, but did you need to make a contingency table? Could you have input these vectors directly into the chisq.test() function?
+
+chisq.test(sen_vs_jun$sen_level, sen_vs_jun$SET_level)
+
+#Pearson's Chi-squared test
+
+# data:  sen_vs_jun$sen_level and sen_vs_jun$SET_level
+# X-squared = 10.207, df = 2, p-value = 0.006075
 
 ```
 
@@ -1133,6 +1212,26 @@ chisq.test(chi_data)
 #| label: dsm-2-3
 
 t.test(ToothGrowth$len)
+
+#Growing comment: Comments
+#This is not a t-test for the difference in means between two groups. This test needs to have two variables (1) the length of the teeth, and (2) the group that the guinea pig was in.
+
+#You also need to make sure you are using unequal variances.
+
+#so I need to alter my code to include a ~ variable or group the guinea pigs were in and tell it that I have unequal variances (var.equal = FALSE). 
+
+t.test(len ~ supp, data = ToothGrowth, var.equal = FALSE)
+
+# 	Welch Two Sample t-test
+# 
+# data:  len by supp
+# t = 1.9153, df = 55.309, p-value = 0.06063
+# alternative hypothesis: true difference in means between group OJ and group VC is not equal to 0
+# 95 percent confidence interval:
+#  -0.1710156  7.5710156
+# sample estimates:
+# mean in group OJ mean in group VC 
+#         20.66333         16.96333 
 
 #Lab 1 Q #10
 
