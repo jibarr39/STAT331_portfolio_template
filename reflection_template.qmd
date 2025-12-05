@@ -623,7 +623,6 @@ ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = 
   theme_minimal(base_size = 8) +
   theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) +
   theme_gray()
-
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -845,6 +844,17 @@ surveys |>
 ```{r}
 #| label: dvs-7-ex-2
 
+pivot_table <- function(data, rows, cols) {
+  data |> 
+    count(pick(c({{ rows }}, {{ cols }}))) |> 
+    pivot_wider(
+      names_from = {{ cols }}, 
+      values_from = n, #n is coming from the result of count()
+      names_sort = TRUE,
+      values_fill = 0
+    )
+}
+
 ```
 
 ## Program Efficiency
@@ -937,13 +947,23 @@ rescale_column <- function(df, cols){
 ```{r}
 #| label: pe-3-map-1
 
+surveys |>
+        map_chr(class) |>
+        enframe(name = "Variable", value = "Data Type") |>
+        arrange("Variable") |>
+        kable(caption = "Summary of Data Types in Surveys Dataset",
+              bold = TRUE)
 
 ```
 
--   using a `map()` function with **more than one** input (e.g., `map_2()` or `pmap()`)
+-   using a `map()` function with **one** input
 
 ```{r}
 #| label: pe-3-map-2
+
+ci_dat <- map(.x = 1:1000,
+              .f = ~mycifun(beta0 = 3, beta1 = 0.5, n = 100)
+              )
 
 ```
 
