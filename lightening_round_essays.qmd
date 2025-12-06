@@ -1,21 +1,28 @@
 ---
 title: "Lightening Round Essays"
+author: "Jennifer Ibarra"
 format: html
 editor: visual
 ---
 
 **Answer each of the following questions with *one sentence* including a brief explanation.**
 
-1. Finish the sentence with another student’s name: "If [Name of Student] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
+1.  Finish the sentence with another student’s name: "If \[Name of Student\] doesn’t earn an A, then nobody should, because..." Explain your choice and your reasoning.
 
+If Abel doesn't earn an A, then nobody should, because he has the patience of a saint and is an excellent collaborator. I only worked with Abel once but that was the most pleasant experience I had working with someone as a peer collaborator! He never overstepped his boundaries as the coder or talker and was willing to work at a good pace so that we each understood what the code was doing.
 
-2. What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
+1.  What was the most difficult part of the class for you? List a general topic, a specific problem, a kind of work we did, etc. and explain why.
 
+I think Lab 4 was the hardest for me just because there was a lot of variables and a lot of data wrangling. Which got confusing at some points about what I was even doing to get an answer.
 
-3. What was the easiest part of the class for you? Explain why.
+1.  What was the easiest part of the class for you? Explain why.
 
+Haha! None of it was easy but going to office hours and talking to Dr. T made life easy and gave me more confidence to challenge myself with honing in on this skill.
 
-4. What part of the class surprised or interested you the most? Explain why.
+1.  What part of the class surprised or interested you the most? Explain why.
 
+I didn't know we can edit tables??? Especially in R! I just thought that was an Excel thing.
 
-5. Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+1.  Give one piece of advice to a student just beginning a quarter of STAT 331 that will help them be successful in learning.
+
+You took this class to grow as a data scientist and I promise collaboration and community is as important here as getting the code to run. If you are being pulled by other obligations (work, family, other classes) you need to be vocal about needing support. Find community and go talk to Dr. T!

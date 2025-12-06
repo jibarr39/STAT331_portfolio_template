@@ -31,6 +31,7 @@ execute:
 surveys <- read_csv("surveys.csv")
 
 #lab 2 Q1
+#this works if I have my directory set to where the csv lives
 
 ```
 
@@ -42,6 +43,7 @@ surveys <- read_csv("surveys.csv")
 surveys <- read_csv(here("Week 2", "Lab 2", "surveys.csv"))
 
 #the original code from lab 9 had here::here() but since we would have the here package loaded we wouldn't need that.
+#this also reaches into a directory if I have one already placed somewhere else.
 
 
 ```
@@ -90,9 +92,7 @@ teacher_evals_clean <- teacher_evals |>
          percent_failed_cur, 
          academic_degree, 
          seniority, 
-         sex) #all this
-
-#CHECK ON MIDTERM EVAL
+         sex) #I am selecting all of these columns to keep
 
 glimpse(teacher_evals_clean)
 ```
@@ -110,7 +110,7 @@ teacher_evals_clean <- teacher_evals |>
   select(-stud_grade_avg:-stud_grade_var_coef, 
          -stud_grade_avg_cur:-maximum_score)
 
-#alright so what if we just not selected the other columns? Ta-dah
+#alright so what if we just removed the other columns with a -? Ta-dah
 
 
 ```
@@ -168,7 +168,7 @@ teacher_evals_clean <- teacher_evals |>
          seniority, 
          sex)
 
-#need to find another example of this
+
 
 ```
 
@@ -187,6 +187,8 @@ witness2 <- person |>
 
 witnesses <- bind_rows(witness1, witness2)
 
+#filtering for adresses which are labeled as characters
+
 ```
 
 -   Character Example 2 (example must use functions from **stringr**)
@@ -204,6 +206,8 @@ get_fit_check_suspects <- get_fit_now_check_in |>
 suspects_combined <- get_fit_check_suspects |>
   inner_join(get_fit_member_suspects, by = c("membership_id" = "id"))
 
+#using functions from stringr package I am looking for IDs starting with a character sequence.
+
 ```
 
 -   Date (example must use functions from **lubridate**)
@@ -216,6 +220,8 @@ sql_symphony_attendees <- facebook_event_checkin |>
                    "SQL Symphony Concert"), 
                    year(date) == 2017, 
                    month(date) == 12)
+
+#filtering through dates
 
 
 ```
@@ -251,6 +257,8 @@ summary_table <- evals |>
   kable_styling(
     bootstrap_options = c("striped", "condensed")) 
 
+#I am changing the seniority level to have meaning that makes sense like junior, senior, and very senior
+
 ```
 
 -   Numeric Example 2
@@ -282,7 +290,7 @@ childcare_long <- childcare_long |>
       )
   )
 
-
+#using fct_recode to rename infant, toddler, and preschooler
 
 ```
 
@@ -294,6 +302,8 @@ childcare_long <- childcare_long |>
 childcare_long <- childcare_long |>
   mutate(census_region = fct_reorder(census_region, weekly_price, .fun = median, na.rm = TRUE),
     age_group = str_to_title(age_group))
+
+#fct_reorder is being used to reorder these columns
 
 ```
 
@@ -317,6 +327,8 @@ ca_childcare <- ca_childcare |>
     "Los Angeles" = la_county,
     "Orange" = orange_county,
     "San Diego/Imperial" = san_diego_imperial_counties))
+
+#using str_remove I am removing the word county from the observations or data and then it will be reworked to be put in different census regions
 
 ```
 
@@ -510,7 +522,7 @@ concert_no_fit <- frequent_sql_attendees |>
 # ---
 # 
 # If you want, I can walk you through exactly where to apply it step-by-step in the SQL Murder Mystery.
-
+#I think I needed an account with Chat to just share a link so I included the response when I asked where can I use an anti-join in the SQL Murder Mystery Challenge
 
 ```
 
@@ -527,6 +539,8 @@ childcare_long <- ca_childcare |>
     names_prefix = "mc_",
     values_to = "weekly_price")
 
+#going from a wide data set to a long one
+
 ```
 
 -   `pivot_wider()`
@@ -540,6 +554,8 @@ median_household <- ca_childcare |>
   summarise(median_income = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
   pivot_wider(names_from = study_year, values_from = median_income) |>
   arrange(desc("2018"))
+
+#going from long to a wide dataset
 
 
 ```
@@ -567,8 +583,13 @@ ggplot(data = surveys,
        mapping = aes(x = weight, y = hindfoot_length)) +
   geom_point(color = "salmon", alpha = 0.5) +
   facet_wrap(~species) +
-  labs( x= "Weight (g)",y = NULL, title = "Relationship between weight and hindfoot length across rodent species", subtitle = "Hindfoot Length (mm)") +
+  labs( x= "Weight (g)",
+        y = NULL, 
+        title = "Relationship between weight and hindfoot length across rodent species", 
+        subtitle = "Hindfoot Length (mm)") +
   theme(plot.subtitle = element_text(hjust = 0.5))
+
+#making sure to make a new row after a , or a + so I can easily edit the plot if I need to
 
 ```
 
@@ -580,9 +601,12 @@ ggplot(data = surveys,
 median_household <- ca_childcare |>
   filter(study_year %in% c(2008, 2018)) |>
   group_by(census_region, study_year) |>
-  summarise(median_income = median(mhi_2018, na.rm = TRUE), .groups = "drop") |>
+  summarise(median_income = median(mhi_2018, na.rm = TRUE), 
+            .groups = "drop") |>
   pivot_wider(names_from = study_year, values_from = median_income) |>
   arrange(desc("2018"))
+
+#making sure my pipes are at the end of each row
 
 ```
 
@@ -664,6 +688,7 @@ rescale_01 <- function(x) {
 
 }
 
+#using the range function instead of min and max over and over again
 
 ```
 
@@ -684,6 +709,8 @@ ggplot(ca_childcare, aes(x = mhi_2018, y = mc_infant)) +
     x = "Median Household Income in 2018 ($)",
     y = "Weekly Median Infant Care Price ($)")
 
+#mhi_2018 and mc_infant are numeric
+
 
 ```
 
@@ -698,6 +725,8 @@ ggplot(data = surveys,
   geom_boxplot(aes(fill = sex), outliers = FALSE) +
   scale_fill_brewer(palette = 5)
   labs( y= "Species of Rodent",x = "Weight (g)", title = "Relationship between species of rodents and their weight")
+  
+#species is categorical and weight is numeric
 
 ```
 
@@ -728,8 +757,9 @@ ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = 
     y = NULL,
     color = "Section Leader") +
   theme_minimal(base_size = 8) +
-  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) +
-  theme_gray()
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) 
+
+#I am plotting years of fishing trips on the x-axis
 ```
 
 **DVS-2: I use plot modifications to make my visualization clear to the reader.**
@@ -739,6 +769,19 @@ ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = 
 ```{r}
 #| label: dvs-2-ex-1
 
+ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = section)) +
+  geom_point(alpha = 0.4, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ trip) +
+  scale_color_manual(values = c("blue", "orange")) +
+   labs(title = "Amount of NAs over time by section leader",
+    x = "Years",
+    y = NULL,
+    color = "Section Leader") +
+  theme_minimal(base_size = 8) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) 
+
+#in theme I alter the legend position and the scaling.
 ```
 
 -   I can modify my colors to be accessible to anyone's eyes
@@ -746,12 +789,90 @@ ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = 
 ```{r}
 #| label: dvs-2-ex-2
 
+# set.seed(515)
+# 
+# ci_dat <- map(.x = 1:100,
+#               .f = ~mycifun(beta0 = 0, beta1 = 1, n = 100)
+#               ) |>
+#   bind_rows()
+# 
+# ci_dat <- ci_dat |>
+#   mutate(MultiverseNum = 1:100, 
+#          inside_bounds = conf.low <=1 & conf.high > 1) |> 
+#   ggplot(aes(x = conf.low, 
+#              xend = conf.high, 
+#              y = MultiverseNum, 
+#              yend = MultiverseNum, 
+#              color = inside_bounds )) +
+#   geom_segment() +
+#    scale_color_manual(values = c(`TRUE` = "darkgreen", `FALSE` = "magenta"))+
+#  geom_point(aes(x = estimate, y = MultiverseNum), color = "black", size = 1) +
+#   labs(x = "Slope Coefficient Estimate", y = NULL,
+# title = "95% Confidence Intervals of Estimated Regression Slope for 100 Multiverses", 
+# subtitle =
+# "CI's that do not include the population slope (1) are magenta")
+#   
+# ci_dat
+
+#NOT Colorblind friendly
+
+set.seed(515)
+
+ci_dat <- map(.x = 1:100,
+              .f = ~mycifun(beta0 = 0, beta1 = 1, n = 100)
+              ) |>
+  bind_rows()
+
+ci_dat <- ci_dat |>
+  mutate(MultiverseNum = 1:100, 
+         inside_bounds = conf.low <=1 & conf.high > 1) |> 
+  ggplot(aes(x = conf.low, 
+             xend = conf.high, 
+             y = MultiverseNum, 
+             yend = MultiverseNum, 
+             color = inside_bounds )) +
+  geom_segment() +
+   scale_color_manual(values = c(`TRUE` = "steelblue", `FALSE` = "orange"))+
+ geom_point(aes(x = estimate, y = MultiverseNum), color = "black", size = 1) +
+  labs(x = "Slope Coefficient Estimate", y = NULL,
+title = "95% Confidence Intervals of Estimated Regression Slope for 100 Multiverses", 
+subtitle =
+"CI's that do not include the population slope (1) are magenta")
+  
+ci_dat
 ```
 
 -   I can modify my plot titles to clearly communicate the data context
 
 ```{r}
 #| label: dvs-2-ex-3
+
+set.seed(515)
+
+ci_dat <- map(.x = 1:100,
+              .f = ~mycifun(beta0 = 0, beta1 = 1, n = 100)
+              ) |>
+  bind_rows()
+
+ci_dat <- ci_dat |>
+  mutate(MultiverseNum = 1:100, 
+         inside_bounds = conf.low <=1 & conf.high > 1) |> 
+  ggplot(aes(x = conf.low, 
+             xend = conf.high, 
+             y = MultiverseNum, 
+             yend = MultiverseNum, 
+             color = inside_bounds )) +
+  geom_segment() +
+   scale_color_manual(values = c(`TRUE` = "darkgreen", `FALSE` = "magenta"))+
+ geom_point(aes(x = estimate, y = MultiverseNum), color = "black", size = 1) +
+  labs(x = "Slope Coefficient Estimate", y = NULL,
+title = "95% Confidence Intervals of Estimated Regression Slope for 100 Multiverses", 
+subtitle =
+"CI's that do not include the population slope (1) are magenta")
+
+#using the labs function with a title and a subtitle
+  
+ci_dat
 
 ```
 
@@ -794,6 +915,21 @@ ggplot(childcare_long, aes(x = study_year, y = weekly_price, color = census_regi
 
 ```{r}
 #| label: dvs-3-1-ex-1
+
+ggplot(summary_fishNA, aes(x = year, y = NAs_inweight, color = section, shape = section)) +
+  geom_point(alpha = 0.4, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1) +
+  facet_wrap(~ trip) +
+  scale_color_manual(values = c("blue", "orange")) +
+   labs(title = "Amount of NAs over time by section leader",
+    x = "Years",
+    y = NULL,
+    color = "Section Leader") +
+  theme_minimal(base_size = 8) +
+  theme(legend.position = "right",aspect.ratio = 1,strip.text = element_text(face = "bold")) +
+  theme_gray()
+
+
 
 ```
 
